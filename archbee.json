@@ -15,6 +15,12 @@
         "children": []
       },
       {
+        "categoryName": "Kickstarter",
+        "isCategory": false,
+        "path": "Kickstarter.md",
+        "children": []
+      },
+      {
         "categoryName": "How to join",
         "isCategory": false,
         "path": "How-to-join.md",
