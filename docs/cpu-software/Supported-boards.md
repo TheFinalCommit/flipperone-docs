@@ -22,7 +22,7 @@ Prototype. Not for sale!
 - ✅ USB-A to USB-A cable not required for flashing via MaskROM mode.
 - **Target name:** `flipper-one`.
 - **Boot priority:** UFS flash → SD card → USB (MaskROM).
-- **Switching to MaskROM mode:** From the boot menu on the screen.
+- **Switching to MaskROM mode:** From the MCU mode home screen, go to **Settings → MaskROM**.
 - **MaskROM USB port:** :inlineImage[]{src="https://api.archbee.com/api/optimize/3StCFqarJkJQZV-7N79yY/7BdCiDckZzDk-h4Qpo3E4_iconusbc.png" alt caption="usb-c icon"} USB-C1.
 
 ***

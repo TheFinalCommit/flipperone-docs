@@ -273,6 +273,12 @@
             "children": []
           },
           {
+            "categoryName": "Rockchip MaskROM mode",
+            "isCategory": false,
+            "path": "cpu-software/Maskrom-mode.md",
+            "children": []
+          },
+          {
             "categoryName": "How to install a Linux image",
             "isCategory": false,
             "path": "cpu-software/How-to-install-linux-image.md",
