@@ -294,7 +294,7 @@ Use the following icons for Flipper One controls:
 * :inlineImage[]{src="/files/icons/touchpad-up-down.png"} Touchpad up-down movement (`touchpad-up-down.png`)
 * :inlineImage[]{src="/files/icons/touchpad-four-way-movement.png"} Touchpad four-way movement (`touchpad-four-way-movement.png`)
 * :inlineImage[]{src="/files/icons/esc-button.png"} Esc button (`esc-button.png`)
-* :inlineImage[]{src="/files/icons/view-button.png"} View button (`rview-button.png`)
+* :inlineImage[]{src="/files/icons/view-button.png"} View button (`view-button.png`)
 * :inlineImage[]{src="/files/icons/power-button-led-off.png"} Power button with LED off (`power-button-led-off.png`)
 * :inlineImage[]{src="/files/icons/power-button-led-green.png"} Power button with green LED (`power-button-led-green.png`)
 * :inlineImage[]{src="/files/icons/power-button-led-yellow.png"} Power button with yellow LED (`power-button-led-yellow.png`)

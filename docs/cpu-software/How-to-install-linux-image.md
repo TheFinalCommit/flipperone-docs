@@ -3,227 +3,344 @@ title: How to install a Linux image
 slug: cpu-software/how-to-install-linux-image
 ---
 
-Flipper OS can be installed on many Rockchip RK3576-based boards, including commercially available ones. This page explains Rockchip’s MaskROM mode and boot priority logic, and provides installation guides as well as a list of boards supported by Flipper OS.
+Flipper OS can be installed on many Rockchip RK3576-based boards, including commercially available ones (see [supported boards](Supported-boards.md) page).
 
-***
+There are two ways to install Flipper OS:
 
-## Rockchip MaskROM mode
-
-The Rockchip RK3576 supports a special **MaskROM mode** that allows writing to the onboard storage drives connected to the chip (SPI/eMMC/UFS flash chips) via USB. In this mode, only a dedicated MaskROM USB port of the RK3576 is used.
-
-::Image[]{src="files/pics/rk3576_maskrom_mode.jpg" size="80" position="flex-start" sha="b6f1fb8a0896cf0187167ea96a261f68460a56b9" initialPath="files/pics/rk3576_maskrom_mode.jpg" githubPath="docs/files/pics/rk3576_maskrom_mode.jpg" width="2658" height="1504" darkWidth="2658" darkHeight="1504"}
-
-The code implementing MaskROM mode on the RK3576 is stored in the chip’s internal ROM (read-only memory) during manufacturing and cannot be erased or modified by the user. As a result, the ability to restore the device’s operating system is always preserved, provided the hardware is not damaged.
-
-Switching into MaskROM mode varies across boards, so on the [Supported Boards](Supported-boards.md) page you will find the method for entering MaskROM mode and the USB port used in MaskROM mode for each supported board.
-
-***
-
-## Board boot priority
-
-The RK3576 chip can be configured with one of several boot priority lists for onboard storage drives. This list can contain up to two items (for example, eMMC flash and an SD card). The boot priority is determined by the voltage on the RK3576 `SARADC_VIN0_BOOT` pin, which is set using a resistor divider on the board and can also be pulled to ground via an onboard button or switch to trigger MaskROM mode.
-
-::Image[]{src="files/pics/rk3576_boot_priority_logic.jpg" size="80" position="flex-start" sha="a377d28366e6535e8d37e083b6590661a4f80a5a" initialPath="files/pics/rk3576_boot_priority_logic.jpg" githubPath="docs/files/pics/rk3576_boot_priority_logic.jpg" width="1880" height="2126" darkWidth="1880" darkHeight="2126"}
-
-After power-on, the RK3576 reads the voltage on the `SARADC_VIN0_BOOT` pin to determine the boot priority list and to check if MaskROM mode has been requested. If not, it attempts to boot from the first storage drive in the priority list. If no valid Rockchip-compatible bootloader signature is found on that device, it proceeds to the second storage device. If no bootloader signature is found there either, the RK3576 enters MaskROM mode and waits for commands from a PC via the MaskROM USB interface.
-
-The table below lists all supported boot priority lists (referred to by Rockchip as boot modes) for the RK3576, along with the corresponding resistor combinations and ADC values for each mode.
-
-::Image[]{src="files/pics/rk3576_boot_mode_config.jpg" size="85" position="flex-start" caption="Boot mode depending on the voltage on SARADC_VIN0_BOOT pin of the RK3576 chip" sha="e4b9c6e09a92387e92dc2074d87d102ce630d4ff" initialPath="files/pics/rk3576_boot_mode_config.jpg" githubPath="docs/files/pics/rk3576_boot_mode_config.jpg" width="4658" height="3434" darkWidth="4658" darkHeight="3434"}
-
-On the [Supported Boards](Supported-boards.md) page you will find the boot priority, the method for switching to MaskROM mode, and the MaskROM USB port for each supported board.
-
-***
-
-## How to install the OS
-
-There are two main ways to install an operating system on the board:
-
-- [Writing an image to an SD card](#writing-to-an-sd-card) and inserting it into the device.
-- [Writing an image to the onboard storage drive](#writing-to-the-onboard-storage-drive) via USB (in MaskROM mode).
-
-Please note that the RK3576 boots from storage drives according to its boot priority list, as described in the [Board Boot Priority](#board-boot-priority) section. If you need the RK3576 to skip booting from the onboard storage drive that already contains a bootable OS, you can [erase it in MaskROM mode](#erasing-the-onboard-storage-drive).
-
-***
-
-### Writing to an SD card
-
-:::hint{type="warning"}
-Use an SD card with a capacity of 8 GB or larger. The SD card will be erased during the OS writing process.
-:::
-
-:::::WorkflowBlock
-:::WorkflowBlockItem
-[Download](https://dl-linux-images.flipp.dev/full-img/) or build an OS image. Use `debian-512-[Target name]-build-[Build ID].img.gz`, where the target name identifies your board. Available target names are listed on the [Supported Boards](Supported-boards.md) page. If you choose to download a prebuilt one from our development images server, usually the latest (highest-numbered) build with no suffix after the number is the best choice. Those with suffixes are test images for work-in-progress functionality.
-:::
-
-:::WorkflowBlockItem
-Connect the microSD card to your PC using a card reader.
-:::
-
-:::WorkflowBlockItem
-Install and run [balenaEtcher](https://etcher.balena.io/) on your PC.
-:::
-
-:::WorkflowBlockItem
-Go to **Flash from file** and select the `.img.gz` image file.
-:::
-
-:::WorkflowBlockItem
-Go to **Select target** and choose your SD card.
-:::
-
-:::WorkflowBlockItem
-Click **Flash!** When the process finishes, remove the SD card from your PC and insert it into your RK3576-based board.
-:::
-
-:::WorkflowBlockItem
-Reboot the board.
-:::
-:::::
-
-***
-
-### Writing to the onboard storage drive
-
-:::hint{type="warning"}
-The recommended tools for flashing boards in MaskROM mode have only been tested on **Linux (Debian)** and **macOS**. Windows instructions will be available later.
-:::
-
-**Step 1:** Install the flashing tools
-
-:::::WorkflowBlock
-:::WorkflowBlockItem
-Install the required dependencies.
-
-- On Debian: `sudo apt update && sudo apt install -y git curl build-essential pkg-config libusb-1.0-0-dev`
-- On macOS: `brew install libusb`
-:::
-
-:::WorkflowBlockItem
-Install the **Rust compiler** and **Cargo package manager**:
-
-`curl https://sh.rustup.rs -sSf | sh`
-:::
-
-:::WorkflowBlockItem
-Reopen the terminal.
-:::
-
-:::WorkflowBlockItem
-Build the **rockusb tool**:
-```shell
-cargo install --git https://github.com/collabora/rockchiprs.git --example rockusb --features=nusb rockusb
-```
-:::
-:::::
-
-‎ 
-
-**Step 2:** Prepare the OS image and enter MaskROM mode
+- [Using Flipper OS Installer](#install-an-os-using-flipper-os-installer) — a tool that that runs on the device, downloads official Flipper OS images and profiles, and installs them to microSD card or UFS storage.
+- [By writing an OS image to a microSD card](#writing-to-an-sd-card) using a card reader.
 
 :::hint{type="info"}
-To complete this step, you need to know your board’s target name, the USB port used in MaskROM mode, and how to enter MaskROM mode. This information is available on the [Supported Boards](Supported-boards.md) page for your specific board.
+**RK3576 boots from storage devices according to the boot priority**
+For example, Flipper One uses the following boot order: UFS → SD card → USB. If you need RK3576 to skip booting from UFS, see [How to erase the bootloader on UFS](#how-to-erase-the-bootloader-on-ufs).
 :::
+
+***
+
+## Install an OS using Flipper OS Installer
+
+:::hint{type="warning"}
+This guide has been tested on Linux (Debian) and macOS. Windows instructions will be added later.
+:::
+
+‎ 
+
+You'll need:
+
+* Flipper One or another supported board.
+* A PC to load the OS Installer onto the board.
+* A USB-C cable to connect the device to your PC.
+* An Ethernet cable with internet access.
+
+For boards other than Flipper One, you'll also need:
+* An HDMI monitor.
+* A USB keyboard.
+
+‎ 
+
+Installing the OS using Flipper OS Installer consists of 3 steps:
+1. [Install rockusb on your PC](#step-1-install-rockusb-on-your-pc).
+2. [Run Flipper OS Installer on your board](#step-2-run-flipper-os-installer-on-your-board).
+3. [Install the OS](#step-3-install-the-os).
+
+‎ 
+
+### Step 1. Install rockusb on your PC
+
+The rockusb tool is required to load the Flipper OS Installer image into the RK3576's RAM using [MaskROM mode](Maskrom-mode.md) of the SoC.
+
+To install rockusb it on your PC, follow the instructions for your operating system:
+
+:::::::::::Tabs
+
+::::::::::Tab{title="On Linux (Debian)"}
+
+:::::WorkflowBlock
+::::WorkflowBlockItem
+Run the command:
+`sudo apt update && sudo apt install rockusb`
+::::
+
+::::WorkflowBlockItem
+Run rockusb to verify that it works:
+`rockusb`
+::::
+:::::
+
+::::::::::
+
+::::::::::Tab{title="On macOS"}
+:::::WorkflowBlock
+::::WorkflowBlockItem
+Install the **Rust compiler** and **Cargo package manager**:
+`curl https://sh.rustup.rs -sSf | sh`
+::::
+
+::::WorkflowBlockItem
+Reopen the terminal.
+::::
+
+::::WorkflowBlockItem
+Build the **rockusb tool**:
+`cargo install --git https://github.com/collabora/rockchiprs.git --example rockusb --features=nusb rockusb`
+::::
+
+::::WorkflowBlockItem
+Run rockusb to verify that it works:
+`rockusb`
+::::
+
+:::::
+
+::::::::::
+
+:::::::::::
+
+‎ 
+
+### Step 2. Run Flipper OS Installer on your board
 
 :::::WorkflowBlock
 :::WorkflowBlockItem
-[Download](Build-system.md#public-build-server) or [build an OS image locally](How-to-build-linux-image.md). You need:
-
-- The bootloader image for your board (the build system places it here: `/u-boot/[Target name]/rk3576_spl_loader_v*.bin`).
-- The compressed full-disk image `debian-[Block size]-[Target name]-build-[Build ID].img.gz` and the corresponding `.bmap` file, which specifies which parts of the image are used. Block size is 512 for eMMC and 4096 for UFS.
-
+Go to [installer build artifacts](https://dl-linux-images.flipp.dev/falcon-installer/#sort=mtime.desc&full=1) page and click on the first item in the list. It's the latest installer build.
 :::
 
 :::WorkflowBlockItem
-Connect the board to your PC via its MaskROM USB port.
+Click your board's target name and download `installer-falcon-loader.bin`.
+If you don't know the target name, check [Supported Boards](Supported-boards.md).
 :::
 
 :::WorkflowBlockItem
-Put the board into [MaskROM mode](#rockchip-maskrom-mode).
+Connect the cables:
+* **Flipper One**: Disconnect the HDMI monitor, if connected.
+* **Other boards**: Connect an HDMI monitor and USB keyboard.
+* Connect the board to your PC via its MaskROM USB port. If unsure which port to use, check [Supported Boards](Supported-boards.md).
+* Connect the board to a LAN with internet access.
 :::
+
+:::WorkflowBlockItem
+Put the board into MaskROM mode as described in [Supported Boards](Supported-boards.md).
+:::
+
+:::WorkflowBlockItem
+On your PC list connected devices in MaskROM mode:
+`rockusb list`
+
+If no devices are listed, check the USB connection and port, re-enter MaskROM mode, and run the command again.
+:::
+
+:::WorkflowBlockItem
+To upload and run the Flipper OS Installer on your device, run the command on your PC from the folder containing the Installer image:
+`rockusb download-boot installer-falcon-loader.bin`
+:::
+
+:::WorkflowBlockItem
+Flipper OS Installer UI will appear:
+* **Flipper One:** On the device screen. Use the buttons to navigate.
+* **Other boards:** On the HDMI monitor. Use a USB keyboard to navigate. The keys work as follows:
+
+<table isTableHeaderOn="true" columnWidths="200,200">
+  <tr>
+    <td align="center">
+      <p><strong>Key on Flipper One</strong></p>
+    </td>
+    <td align="center">
+      <p><strong>Key on USB keyboard</strong></p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <p>D-pad Ok button</p>
+    </td>
+    <td>
+      <p>↵ Enter</p>
+    </td>
+  </tr>
+  <tr>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>D-pad arrow buttons</p>
+    </td>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>← ↑ → ↓ Arrow buttons</p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <p>Back button</p>
+    </td>
+    <td>
+      <p>⌫ Backspace</p>
+    </td>
+  </tr>
+  <tr>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>Esc button</p>
+    </td>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>Z</p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <p>View button</p>
+    </td>
+    <td>
+      <p>X</p>
+    </td>
+  </tr>
+  <tr>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>Power button</p>
+    </td>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>C</p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <p>Edit button</p>
+    </td>
+    <td>
+      <p>V</p>
+    </td>
+  </tr>
+  <tr>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>Run button</p>
+    </td>
+    <td lightBackgroundColor="#f0f7ff">
+      <p>B</p>
+    </td>
+  </tr>
+</table>
+:::
+
 :::::
 
 ‎ 
 
-**Step 3:** Flash the OS image
+### Step 3. Install the OS
+
+::Image[]{src="files/pics/flipper-os-installer-ui.png" size="100" position="center"}
+
+In the Flipper OS Installer, do the following:
 
 :::::WorkflowBlock
-:::WorkflowBlockItem
-List connected devices in MaskROM mode:
+::::WorkflowBlockItem
+In **Source**, select the OS release branch:
 
-`rockusb list`
+* `Release` — Stable and tested builds.
+* `Release candidate` — Builds ready for final testing before release.
+* `Nightly` — Latest daily builds.
+* `Dev` — Builds in active development.
 
-If no devices are listed, check the USB connection, make sure the correct USB port is being used, re-enter MaskROM mode, and run the command again.
-:::
+After selecting a branch, choose an OS build from the list.
+::::
 
-:::WorkflowBlockItem
-Load the bootloader into RK3576 RAM:
+::::WorkflowBlockItem
+In **Device**, select the storage device to install the OS on:
+* `/dev/mmcblk0 [eMMC]` — microSD card.
+* `/dev/sda [UFS]` — UFS storage.
 
-`rockusb download-boot [path to rk3576_loader_*.bin]`
-:::
+If UFS is present but lacks the required hardware partitions (logical units) for the Flipper OS installation, you will need to select `Reprovision UFS` first. **Reprovisioning will erase all data on the UFS storage!**
+::::
 
-:::WorkflowBlockItem
-Select the storage drive you want to use:
+::::WorkflowBlockItem
+In **Profiles**, select the official OS profiles to install. The `Minimal` profile is always installed. Other profiles are optional.
 
-`rockusb switch-storage X`
+See [OS profiles and snapshots](profiles.md) for more information about OS profiles.
+::::
 
-Where X can be: nand, emmc, sd0, sd1, spi-nor, spi-nand, ram, mtd-blk-nand, mtd-blk-spi-nand, mtd-blk-spi-nor, sata, pcie, ufs. Note that on RK3576 the UFS storage can show up as SATA.
-:::
+::::WorkflowBlockItem
+In **Fetch**, select how the installer downloads and verifies the OS image:
 
-:::WorkflowBlockItem
-Write the OS image to the storage drive:
+* `Download & verify` (more reliable, but slower) — Downloads the entire image, verifies its integrity, and writes it to storage.
+* `Stream` (faster, but less reliable) — Writes the image while downloading. Each block is verified before being written, but a verification failure only generate warnings in the installation log.
+::::
 
-`rockusb write-bmap [path to the OS image file for your board]`
-:::
-
-:::WorkflowBlockItem
-Reboot the RK3576:
-
-`rockusb reset-device`
-:::
+::::WorkflowBlockItem
+Press **Install** and wait for the installation to complete. Then press **Reboot**.
+::::
 :::::
 
 ***
 
-### Erasing the onboard storage drive
+## Write an OS image to a microSD card
 
-To erase the onboard storage drive, follow steps 1 and 2 from the [Writing to the onboard storage drive](#writing-to-the-onboard-storage-drive) instructions, excluding the OS image prepare step.
+:::hint{type="danger"}
+**The microSD card will be erased during this process!**
+:::
 
-Then perform the following steps:
+‎ 
+
+To write the OS image on a microSD card:
+
+:::::WorkflowBlock
+::::WorkflowBlockItem
+[Download](https://dl-linux-images.flipp.dev/full-img/) or [build](How-to-build-linux-image.md) an OS image. Use `debian-512-[Target name]-build-[Build ID].img.zst`, where `[Target name]` identifies your board. 
+See [Supported Boards](Supported-boards.md) for available target names.
+::::
+
+::::WorkflowBlockItem
+Connect an 8 GB or larger microSD card to your PC using a card reader.
+::::
+
+::::WorkflowBlockItem
+Download and run [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on your PC.
+::::
+
+::::WorkflowBlockItem
+Click the **OS** tab. Then click **Use custom**, select the `.zst` OS image and click **NEXT**. 
+
+![](/files/pics/flipper-os-write-os-image-step1.png)
+::::
+
+::::WorkflowBlockItem
+In the **Storage** tab select your microSD card in the list and click **NEXT**.
+
+![](/files/pics/flipper-os-write-os-image-step2.png)
+::::
+
+::::WorkflowBlockItem
+On the **Writing** tab click **WRITE** and wait until the process finishes.
+
+![](/files/pics/flipper-os-write-os-image-step3.png)
+::::
+
+::::WorkflowBlockItem
+Insert the microSD card into your board and reboot the board.
+::::
+:::::
+
+:::hint{type="info"}
+**Mind the boot priority**
+
+The RK3576 boots from storage devices according to their boot priority. For example, Flipper One uses the following boot order: UFS → SD card → USB.
+
+If UFS contains a bootable OS, the device will boot from UFS instead of the microSD card. To make the UFS storage unbootable, see [How to erase the bootloader on UFS](#how-to-erase-the-bootloader-on-ufs).
+:::
+***
+
+## How to erase the bootloader on UFS
+:::hint{type="warning"}
+**This will erase the bootloader from UFS, making it unbootable until it is reflashed**. User data will not be affected.
+:::
+
+To erase the bootloader on UFS storage, do the following:
 
 :::::WorkflowBlock
 :::WorkflowBlockItem
-List connected devices in MaskROM mode:
-
-`rockusb list`
-
-If no devices are listed, check the USB connection, make sure the correct USB port is being used, re-enter MaskROM mode, and run the command again.
+First, boot your device from UFS storage.
 :::
 
 :::WorkflowBlockItem
-Load the bootloader into RK3576 RAM:
+Run in the terminal:
 
-`rockusb download-boot [path to rk3576_spl_loader_*.bin]`
+`sudo blkdiscard /dev/sdb`
+`sudo blkdiscard /dev/sdc`
 :::
 
 :::WorkflowBlockItem
-Select the storage drive to erase:
-
-`rockusb switch-storage X`
-
-Where X can be: nand, emmc, sd0, sd1, spi-nor, spi-nand, ram, mtd-blk-nand, mtd-blk-spi-nand, mtd-blk-spi-nor, sata, pcie, ufs. Note that on RK3576 the UFS storage can show up as SATA.
-:::
-
-:::WorkflowBlockItem
-Erase the storage drive:
-
-`rockusb erase-flash`
-:::
-
-:::WorkflowBlockItem
-Reboot the RK3576:
-
-`rockusb reset-device`
+Reboot the device.
 :::
 :::::

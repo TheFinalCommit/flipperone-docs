@@ -20,6 +20,7 @@ The CPU Software sub-project consists of:
   - [Linux build scripts](https://github.com/flipperdevices/flipperone-linux-build-scripts)
   - [Rkbin](https://github.com/flipperdevices/rkbin)
   - [U-Boot](https://github.com/flipperdevices/u-boot)
+  - [Falcon mode boot menu](https://github.com/flipperdevices/flipperos-boot-menu)
   - [Linux kernel](https://github.com/flipperdevices/flipper-linux-kernel)
 
 We'd love your feedback — look for tasks tagged **help wanted** in the task tracker, or contribute directly to the GitHub repositories via pull requests.
