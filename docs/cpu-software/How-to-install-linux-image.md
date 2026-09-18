@@ -7,7 +7,7 @@ Flipper OS can be installed on many Rockchip RK3576-based boards, including comm
 
 There are two ways to install Flipper OS:
 
-- [Using Flipper OS Installer](#install-os-using-flipper-os-installer) — a tool that that runs on the device, downloads official Flipper OS images and profiles, and installs them to microSD card or UFS storage.
+- [Using Flipper OS Installer](#install-os-using-flipper-os-installer) — a tool that runs on the device, downloads official Flipper OS images and profiles, and installs them to microSD card or UFS storage.
 - [By writing an OS image to a microSD card](#writing-to-an-sd-card) using a card reader.
 
 :::hint{type="info"}
@@ -43,7 +43,7 @@ The OS installation process consists of three steps:
 
 The rockusb tool is required to load the Flipper OS Installer image into the RK3576's RAM using [MaskROM mode](Maskrom-mode.md) of the SoC.
 
-To install rockusb it on your PC, follow the instructions for your operating system:
+To install rockusb on your PC, follow the instructions for your operating system:
 
 :::::::::::Tabs
 
@@ -96,7 +96,7 @@ Run rockusb to verify that it works:
 
 :::::WorkflowBlock
 :::WorkflowBlockItem
-Go to [installer build artifacts](https://dl-linux-images.flipp.dev/falcon-installer/#sort=mtime.desc&full=1) page and select the latest installer build (the first item in the list).
+Go to the [installer build artifacts](https://dl-linux-images.flipp.dev/falcon-installer/#sort=mtime.desc&full=1) page and select the latest installer build (the first item in the list).
 :::
 
 :::WorkflowBlockItem
@@ -249,7 +249,7 @@ See [OS profiles and snapshots](profiles.md) for more information about OS profi
 In **Fetch**, select how the installer downloads and verifies the OS image:
 
 * `Download & verify` (more reliable, but slower) — Downloads the entire image, verifies its integrity, and writes it to storage.
-* `Stream` (faster, but less reliable) — Writes the image while downloading. Each block is verified before being written, but a verification failure only generate warnings in the installation log.
+* `Stream` (faster, but less reliable) — Writes the image while downloading. Each block is verified before being written, but a verification failure only generates warnings in the installation log.
 ::::
 
 ::::WorkflowBlockItem
@@ -290,13 +290,13 @@ Click the **OS** tab. Then click **Use custom**, select the `.zst` OS image and 
 ::::
 
 ::::WorkflowBlockItem
-In the **Storage** tab select your microSD card in the list and click **NEXT**.
+In the **Storage** tab, select your microSD card in the list and click **NEXT**.
 
 ![](/files/pics/flipper-os-write-os-image-step2.png)
 ::::
 
 ::::WorkflowBlockItem
-On the **Writing** tab click **WRITE** and wait until the process finishes.
+On the **Writing** tab, click **WRITE** and wait until the process finishes.
 
 ![](/files/pics/flipper-os-write-os-image-step3.png)
 ::::
