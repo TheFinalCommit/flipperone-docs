@@ -7,7 +7,7 @@ Flipper OS can be installed on many Rockchip RK3576-based boards, including comm
 
 There are two ways to install Flipper OS:
 
-- [Using Flipper OS Installer](#install-an-os-using-flipper-os-installer) — a tool that that runs on the device, downloads official Flipper OS images and profiles, and installs them to microSD card or UFS storage.
+- [Using Flipper OS Installer](#install-os-using-flipper-os-installer) — a tool that that runs on the device, downloads official Flipper OS images and profiles, and installs them to microSD card or UFS storage.
 - [By writing an OS image to a microSD card](#writing-to-an-sd-card) using a card reader.
 
 :::hint{type="info"}
@@ -17,18 +17,12 @@ For example, Flipper One uses the following boot order: UFS → SD card → USB.
 
 ***
 
-## Install an OS using Flipper OS Installer
-
-:::hint{type="warning"}
-This guide has been tested on Linux (Debian) and macOS. Windows instructions will be added later.
-:::
-
-‎ 
+## Install OS using Flipper OS Installer
 
 You'll need:
 
 * Flipper One or another supported board.
-* A PC to load the OS Installer onto the board.
+* A Linux (Debian) or macOS PC to load the OS Installer onto the board.
 * A USB-C cable to connect the device to your PC.
 * An Ethernet cable with internet access.
 
@@ -38,7 +32,7 @@ For boards other than Flipper One, you'll also need:
 
 ‎ 
 
-Installing the OS using Flipper OS Installer consists of 3 steps:
+The OS installation process consists of three steps:
 1. [Install rockusb on your PC](#step-1-install-rockusb-on-your-pc).
 2. [Run Flipper OS Installer on your board](#step-2-run-flipper-os-installer-on-your-board).
 3. [Install the OS](#step-3-install-the-os).
@@ -102,7 +96,7 @@ Run rockusb to verify that it works:
 
 :::::WorkflowBlock
 :::WorkflowBlockItem
-Go to [installer build artifacts](https://dl-linux-images.flipp.dev/falcon-installer/#sort=mtime.desc&full=1) page and click on the first item in the list. It's the latest installer build.
+Go to [installer build artifacts](https://dl-linux-images.flipp.dev/falcon-installer/#sort=mtime.desc&full=1) page and select the latest installer build (the first item in the list).
 :::
 
 :::WorkflowBlockItem
