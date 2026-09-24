@@ -1,22 +1,18 @@
 name: Update Open-tasks page
 
 on:
-  schedule:
-    # Hourly at :15 (offset from :00 to avoid the GitHub Actions runner-queue
-    # spike that hits on every cron-aligned minute).
-    - cron: "15 * * * *"
   workflow_dispatch:
-  push:
-    branches: [public-release]
-    paths:
-      - "tools/generate_open_tasks.py"
-      - "tools/templates/**"
-      - "requirements.txt"
-      - ".github/workflows/update-open-tasks.yml"
+    inputs:
+      scenario:
+        description: Fork-only lifecycle test data
+        type: choice
+        options: [base, changed, updated, live]
+        required: true
+        default: changed
 
 # Don't let a manual dispatch race with the cron run.
 concurrency:
-  group: update-open-tasks
+  group: fork-test-open-tasks
   cancel-in-progress: false
 
 permissions:
@@ -27,17 +23,17 @@ permissions:
 # push there directly (#367). It pushes the regenerated page to a fixed branch
 # and opens one PR from it, refreshing that same PR on later runs.
 env:
-  PR_BRANCH: auto/open-tasks
-  BASE_BRANCH: public-release
+  PR_BRANCH: test/auto-open-tasks-deep-20260924
+  BASE_BRANCH: test/open-tasks-deep-20260924
 
 jobs:
   regenerate:
-    if: github.repository == 'flipperdevices/flipperone-docs'
+    if: github.repository == 'TheFinalCommit/flipperone-docs'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: public-release
+          ref: test/open-tasks-deep-20260924
           # Enable Actions PR creation in the repository settings for GITHUB_TOKEN.
           # Its PR workflows require approval. Set OPEN_TASKS_PR_TOKEN to a
           # PAT (contents + pull-requests write) to run checks automatically.
@@ -49,7 +45,17 @@ jobs:
       - name: Regenerate docs/Open-tasks.md
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 tools/generate_open_tasks.py --out docs/Open-tasks.md
+          SCENARIO: ${{ inputs.scenario || 'changed' }}
+        run: |
+          case "$SCENARIO" in
+            base|changed|updated)
+              python3 tools/generate_open_tasks.py --input-json "test-fixtures/$SCENARIO.json" --out docs/Open-tasks.md
+              ;;
+            live)
+              python3 tools/generate_open_tasks.py --out docs/Open-tasks.md
+              ;;
+            *) exit 1 ;;
+          esac
 
       - name: Open or update the pull request
         env:
