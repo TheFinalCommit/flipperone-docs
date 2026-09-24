@@ -1,8 +1,6 @@
 name: Update Open-tasks page
 
 on:
-  push:
-    branches: [test/open-tasks-lifecycle-20260923]
   workflow_dispatch:
     inputs:
       scenario:
