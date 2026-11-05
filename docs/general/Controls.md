@@ -148,7 +148,7 @@ Some buttons and their combinations have hardware-defined behavior that does not
       <p><strong>Hardware Restart</strong></p>
     </td>
     <td align="left">
-      <p><code>Back + Left</code> — hold for 0.5 seconds, ⚠️ but we want 3 seconds? An analog circuit (OR gate) charges a capacitor and sends a reset to all chips: MCU, CPU, and two expanders.</p>
+      <p><code>Back&nbsp;+&nbsp;Left</code> — hold for 3 seconds. This will send an uninterceptable hardware reset to the CPU and MCU chips.</p>
       <p>‎</p>
     </td>
   </tr>
@@ -178,8 +178,9 @@ Some buttons and their combinations have hardware-defined behavior that does not
       <p><strong>Firmware Recovery</strong></p>
     </td>
     <td align="left" colSpan="1" rowSpan="1">
-      <p>Hold <code>??? + ???</code> before Powering ON or power cycle to enter in MCU Firmware Recovery.</p>
-      <p>TODO: Find better shortcut</p>
+      <p>Hold <code>ESC&nbsp;+&nbsp;Run&nbsp;+&nbsp;Back&nbsp;+&nbsp;Left</code> for 3 seconds.</p>
+      <p>Think of this as a normal Hardware Restart made by <code>Back&nbsp;+&nbsp;Left</code>, but Firmware Recovery is triggered if <code>ESC&nbsp;+&nbsp;Run</code> are pressed while the MCU is starting. This puts the RP2350 MCU into the UF2 bootloader (<a href="https://docs.flipper.net/one/mcu-firmware/firmware-update">BOOTSEL mode</a>).</p>
+      <p>If Firmware Recovery is successful, you will see a USB Mass Storage Device named <code>FlipOneMCU</code>.</p>
       <p>‎</p>
     </td>
   </tr>

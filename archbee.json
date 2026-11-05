@@ -33,6 +33,24 @@
         "isFoldedByDefault": true,
         "children": [
           {
+            "categoryName": "#11",
+            "isCategory": false,
+            "path": "dev-log/11.md",
+            "children": []
+          },
+          {
+            "categoryName": "#10",
+            "isCategory": false,
+            "path": "dev-log/10.md",
+            "children": []
+          },
+          {
+            "categoryName": "#9",
+            "isCategory": false,
+            "path": "dev-log/9.md",
+            "children": []
+          },
+          {
             "categoryName": "#8",
             "isCategory": false,
             "path": "dev-log/8.md",
@@ -258,7 +276,14 @@
             "categoryName": "FlipCTL",
             "isCategory": false,
             "path": "cpu-software/FlipCTL.md",
-            "children": []
+            "children": [
+              {
+                "categoryName": "5G Modem app",
+                "isCategory": false,
+                "path": "cpu-software/flipctl/5G-Modem-app.md",
+                "children": []
+              }
+            ]
           },
           {
             "categoryName": "Build system",
@@ -465,6 +490,12 @@
                 "isCategory": false,
                 "path": "testing/Cellular-Modems.md",
                 "children": [
+                  {
+                    "categoryName": "RM520N-GL",
+                    "isCategory": false,
+                    "path": "testing/RM520N-GL.md",
+                    "children": []
+                  },
                   {
                     "categoryName": "RM530N-GL",
                     "isCategory": false,
